@@ -1,9 +1,11 @@
 (function() {
-  var Drivers, Guid, Mock, Reports, _, driverDB, levelup, moment;
+  var Drivers, Guid, Mock, Reports, Terminals, _, driverDB, levelup, moment, terminalDB;
 
   Reports = require('./data/reports');
 
   Drivers = require('./data/drivers');
+
+  Terminals = require('./data/terminals');
 
   levelup = require('levelup');
 
@@ -17,6 +19,10 @@
     valueEncoding: 'json'
   });
 
+  terminalDB = levelup('./terminalDB', {
+    valueEncoding: 'json'
+  });
+
   Mock = function() {};
 
   Mock.getReports = function(page, rows) {
@@ -27,6 +33,25 @@
         } else {
           return resolve(result);
         }
+      });
+    });
+  };
+
+  Mock.getTerminals = function(count) {
+    var results;
+    results = [];
+    return new Promise(function(resolve, reject) {
+      return terminalDB.createReadStream().on("data", function(data) {
+        var result;
+        result = {
+          id: data.key
+        };
+        _.merge(result, data.value);
+        return results.push(result);
+      }).on("error", function(err) {
+        return reject(err);
+      }).on("end", function() {
+        return resolve(results);
       });
     });
   };

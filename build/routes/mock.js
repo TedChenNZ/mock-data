@@ -66,7 +66,7 @@
         return this.status = 500;
       }
     });
-    return app.get("/reports", function*(next) {
+    app.get("/reports", function*(next) {
       var page, result, rows_per_page;
       rows_per_page = this.request.query['per_page'] || 10;
       page = this.request.query['page'] || 0;
@@ -74,6 +74,20 @@
         return res;
       }));
       this.set('X-Total-Count', 819);
+      if (result) {
+        this.status = 200;
+        return this.body = result;
+      } else {
+        return this.status = 404;
+      }
+    });
+    return app.get("/terminals", function*(next) {
+      var count, result;
+      count = this.request.query.count || 100;
+      result = (yield Mock.getTerminals(count).then(function(res) {
+        return res;
+      }));
+      console.log(result);
       if (result) {
         this.status = 200;
         return this.body = result;

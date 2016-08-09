@@ -1,11 +1,16 @@
 Reports = require './data/reports'
 Drivers = require './data/drivers'
+Terminals = require './data/terminals'
 levelup = require 'levelup'
 Guid    = require 'guid'
 _       = require 'lodash'
 moment  = require 'moment'
 
 driverDB = levelup('./driverDB', {
+	valueEncoding: 'json'
+})
+
+terminalDB = levelup('./terminalDB', {
 	valueEncoding: 'json'
 })
 
@@ -16,6 +21,21 @@ Mock.getReports = (page, rows) ->
 		Reports.get page, rows, (err, result) ->
 			if err then reject(err)
 			else resolve(result)
+
+
+Mock.getTerminals = (count) ->
+	results = []
+	new Promise (resolve, reject) ->
+		terminalDB.createReadStream()
+			.on "data", (data) ->
+				result =
+					id: data.key
+				_.merge(result, data.value)
+				results.push result
+			.on "error", (err) ->
+				reject(err)
+			.on "end", () ->
+				resolve(results)
 
 Mock.getDrivers = (count) ->
 	results = []

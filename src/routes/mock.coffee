@@ -85,3 +85,21 @@ module.exports = (app) ->
 			@body = result
 		else
 			@status = 404
+
+	app.get "/terminals", (next) ->
+
+		count = @request.query.count or 100
+
+		result = yield Mock.getTerminals(count)
+			.then (res) ->
+				return res
+
+		# @set 'X-Total-Count', result.length
+
+		console.log result
+
+		if result
+			@status = 200
+			@body = result
+		else
+			@status = 404
